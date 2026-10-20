@@ -8,7 +8,6 @@ import { isValidGreekPhone } from './validate.js';
 
 export const PROMPT = 'Enter a number sequence: ';
 
-// Fixed display cap, exported so tests import it; not configurable (no flag, no environment variable).
 export const MAX_ROWS = 1000;
 
 export interface CliIO {
@@ -16,11 +15,9 @@ export interface CliIO {
   stdin: Readable;
   stdout: Writable;
   stderr: Writable;
-  /** True only when stdin is a TTY; supplied by the entry point. */
   interactive: boolean;
 }
 
-// One validator feeds the Phone number line and every table row.
 function verdictOf(s: string): Verdict {
   return isValidGreekPhone(s) ? 'VALID' : 'INVALID';
 }
@@ -33,7 +30,6 @@ function handle(input: string, io: CliIO): boolean {
   }
   const digits = concatenate(result.tokens);
   const lines = [`Identified number: ${digits}`, `Phone number: ${verdictOf(digits)}`];
-  // Exact total without enumerating; the table appears only when more than one interpretation exists.
   const total = countInterpretations(result.tokens);
   if (total > 1n) {
     const rows: TableRow[] = firstInterpretations(result.tokens, MAX_ROWS).map((output) => ({
@@ -45,9 +41,7 @@ function handle(input: string, io: CliIO): boolean {
       lines.push(truncationNotice(rows.length, total));
     }
   }
-  // One write of the whole text: a late failure cannot leave a half-written result.
   io.stdout.write(`${lines.join('\n')}\n`);
-  // An INVALID number is still a successful run: only rejected input returns false.
   return true;
 }
 
@@ -60,10 +54,8 @@ async function readAll(stdin: Readable): Promise<string> {
   return text;
 }
 
-/** Prompts until one valid line is entered (0), or input ends (1). */
 async function promptLoop(io: CliIO): Promise<number> {
   const rl = createInterface({ input: io.stdin, output: io.stdout });
-  // On Ctrl+C close the interface so the loop below ends like EOF.
   rl.on('SIGINT', () => {
     rl.close();
   });
@@ -76,12 +68,10 @@ async function promptLoop(io: CliIO): Promise<number> {
     }
     rl.prompt();
   }
-  // Stream end, Ctrl+D or Ctrl+C: finish the prompt line quietly.
   io.stdout.write('\n');
   return 1;
 }
 
-/** Runs the CLI against injected streams and returns the exit code. */
 export async function run(io: CliIO): Promise<number> {
   if (io.argv.length > 0) {
     return handle(io.argv.join(' '), io) ? 0 : 1;

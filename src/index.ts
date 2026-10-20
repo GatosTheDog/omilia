@@ -9,7 +9,6 @@ try {
     interactive: process.stdin.isTTY === true,
   });
 } catch (err) {
-  // Last-resort boundary: one line, never a stack trace.
   const message = err instanceof Error ? err.message : String(err);
   process.stderr.write(`Unexpected error: ${message}\n`);
   process.exitCode = 1;

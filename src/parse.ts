@@ -1,5 +1,3 @@
-// Pure functions: no I/O, no imports.
-
 export type ParseError =
   | { kind: 'empty' }
   | { kind: 'non-digit'; token: string }
@@ -9,14 +7,11 @@ export type ParseResult =
   | { ok: true; tokens: string[] }
   | { ok: false; error: ParseError };
 
-// Explicit ASCII range: only 0-9 count as digits.
 const DIGITS_ONLY = /^[0-9]+$/;
 const MAX_TOKEN_LENGTH = 3;
 
-/** Trim, split on whitespace runs, validate each token. Never throws. */
 export function parseTokens(input: string): ParseResult {
   const trimmed = input.trim();
-  // Check before splitting: ''.split(/\s+/) yields one empty token.
   if (trimmed === '') {
     return { ok: false, error: { kind: 'empty' } };
   }
@@ -34,7 +29,7 @@ export function parseTokens(input: string): ParseResult {
 }
 
 export function concatenate(tokens: readonly string[]): string {
-  return tokens.join(''); // string join keeps leading zeros
+  return tokens.join('');
 }
 
 export function formatParseError(error: ParseError): string {
