@@ -1,0 +1,8 @@
+# Installed dependencies and copies of that folder
+node_modules*/
+
+# Build output
+dist/
+
+# macOS Finder metadata, any depth
+.DS_Store
